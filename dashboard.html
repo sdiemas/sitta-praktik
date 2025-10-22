@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="sitta" data-page="dashboard">
+
+  <!-- NAVBAR lengkap (tanpa teks brand) -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand"></div>
+
+      <button class="navbar-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primaryMenu">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </button>
+
+      <ul class="nav-menu" id="primaryMenu">
+        <li class="nav-item"><a class="nav-link active" href="dashboard.html">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="stok.html">Informasi Bahan Ajar</a></li>
+        <li class="nav-item"><a class="nav-link" href="tracking.html">Tracking Pengiriman</a></li>
+
+        <li class="nav-item" id="laporanItem">
+          <a href="#" class="nav-link has-caret" id="laporanToggle">Laporan<span class="caret"></span></a>
+          <div class="dropdown-menu">
+            <a href="#" class="dropdown-item">Monitoring Progress DO</a>
+            <a href="#" class="dropdown-item">Rekap Bahan Ajar</a>
+          </div>
+        </li>
+
+        <li class="nav-item"><a href="#" class="nav-link">Histori Transaksi</a></li>
+        <li class="nav-item nav-right"><button id="logoutBtn" class="btn-logout">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <div class="container">
+    <section class="content-header">
+      <h1 class="page-title">Dashboard Aplikasi <span class="title-accent">SITTA</span></h1>
+      <div class="greeting-container">
+        <span id="greetingText" class="greeting-text">Selamat Pagi</span>
+        <span id="timeBadge" class="time-badge"></span>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast-container"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

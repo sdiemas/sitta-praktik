@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Informasi Stok Bahan Ajar</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="sitta" data-page="stok">
+
+  <!-- NAVBAR lengkap -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand"></div>
+
+      <button class="navbar-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primaryMenu">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </button>
+
+      <ul class="nav-menu" id="primaryMenu">
+        <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link active" href="stok.html">Informasi Bahan Ajar</a></li>
+        <li class="nav-item"><a class="nav-link" href="tracking.html">Tracking Pengiriman</a></li>
+
+        <li class="nav-item" id="laporanItem">
+          <a href="#" class="nav-link has-caret" id="laporanToggle">Laporan<span class="caret"></span></a>
+          <div class="dropdown-menu">
+            <a href="#" class="dropdown-item">Monitoring Progress DO</a>
+            <a href="#" class="dropdown-item">Rekap Bahan Ajar</a>
+          </div>
+        </li>
+
+        <li class="nav-item"><a href="#" class="nav-link">Histori Transaksi</a></li>
+        <li class="nav-item nav-right"><button id="logoutBtn" class="btn-logout">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Tambah Stok Bahan Ajar</h2>
+      <form id="stok-form" autocomplete="off" class="stok-form">
+        <div class="grid-3">
+          <label><span>Kode Lokasi</span><input id="stok-inLokasi" required placeholder=""></label>
+          <label><span>Kode Barang</span><input id="stok-inKode" required placeholder=""></label>
+          <label><span>Nama Barang</span><input id="stok-inNama" required placeholder=""></label>
+        </div>
+        <div class="grid-3">
+          <label><span>Jenis Barang</span><input id="stok-inJenis" required placeholder=""></label>
+          <label><span>Edisi</span><input type="number" id="stok-inEdisi" min="1" required placeholder=""></label>
+          <label><span>Stok</span><input type="number" id="stok-inStok" min="0" required placeholder=""></label>
+        </div>
+        <label><span>Cover (gambar dari device)</span><input type="file" id="stok-inCoverFile" accept="image/*"></label>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Tambah</button>
+          <button class="btn" type="reset">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="table-head">
+        <h2>Daftar Stok Bahan Ajar</h2>
+        <input id="stok-q" class="filter" placeholder="Cari nama/kode..."/>
+      </div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead>
+            <tr><th>Cover</th><th>Kode Lokasi</th><th>Kode Barang</th><th>Nama Barang</th><th>Jenis</th><th>Edisi</th><th>Stok</th></tr>
+          </thead>
+          <tbody id="stok-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- LIGHTBOX PREVIEW cepat -->
+  <div id="lb" class="lightbox">
+    <button class="close" id="lbClose" type="button">&times;</button>
+    <img id="lbImg" alt="Preview Cover"/>
+  </div>
+
+  <div class="toast-container"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

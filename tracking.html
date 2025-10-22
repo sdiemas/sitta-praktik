@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tracking Pengiriman</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="sitta" data-page="tracking">
+
+  <!-- NAVBAR lengkap -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand"></div>
+
+      <button class="navbar-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primaryMenu">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </button>
+
+      <ul class="nav-menu" id="primaryMenu">
+        <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="stok.html">Informasi Bahan Ajar</a></li>
+        <li class="nav-item"><a class="nav-link active" href="tracking.html">Tracking Pengiriman</a></li>
+
+        <li class="nav-item" id="laporanItem">
+          <a href="#" class="nav-link has-caret" id="laporanToggle">Laporan<span class="caret"></span></a>
+          <div class="dropdown-menu">
+            <a href="#" class="dropdown-item">Monitoring Progress DO</a>
+            <a href="#" class="dropdown-item">Rekap Bahan Ajar</a>
+          </div>
+        </li>
+
+        <li class="nav-item"><a href="#" class="nav-link">Histori Transaksi</a></li>
+        <li class="nav-item nav-right"><button id="logoutBtn" class="btn-logout">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="card">
+      <h2>Tracking Pengiriman – Delivery Order</h2>
+      <div class="input-row">
+        <input type="text" id="doInput" placeholder="Masukkan Nomor DO " autocomplete="off" />
+        <button id="doSearch" class="btn btn-primary" type="button">Cari</button>
+      </div>
+    </section>
+
+    <section id="doResult" class="card hidden">
+      <div class="result-head">
+        <div>
+          <h3 id="resNomor"></h3>
+          <div class="muted">Nama: <span id="resNama"></span></div>
+        </div>
+        <span id="resStatus" class="badge">Status</span>
+      </div>
+
+      <div class="progress"><div id="resBar" class="bar"></div></div>
+
+      <div class="detail-grid">
+        <div class="detail-item"><span class="label">Ekspedisi</span><span id="resEkspedisi" class="value"></span></div>
+        <div class="detail-item"><span class="label">Tanggal Kirim</span><span id="resTanggal" class="value"></span></div>
+        <div class="detail-item"><span class="label">Jenis Paket</span><span id="resPaket" class="value"></span></div>
+        <div class="detail-item"><span class="label">Total</span><span id="resTotal" class="value"></span></div>
+      </div>
+
+      <div class="timeline">
+        <h4>Perjalanan</h4>
+        <ul id="resTimeline"></ul>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast-container"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
