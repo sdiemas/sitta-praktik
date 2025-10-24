@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard</title>
+  <title>Dashboard - SITTA</title>
   <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="sitta" data-page="dashboard">
-
-  <!-- NAVBAR lengkap (tanpa teks brand) -->
+<body data-page="dashboard">
+  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="navbar-container">
       <div class="navbar-brand"></div>
@@ -24,7 +23,10 @@
         <li class="nav-item"><a class="nav-link" href="tracking.html">Tracking Pengiriman</a></li>
 
         <li class="nav-item" id="laporanItem">
-          <a href="#" class="nav-link has-caret" id="laporanToggle">Laporan<span class="caret"></span></a>
+          <a href="#" class="nav-link has-caret" id="laporanToggle">
+            <span>Laporan</span>
+            <span class="caret"></span>
+          </a>
           <div class="dropdown-menu">
             <a href="#" class="dropdown-item">Monitoring Progress DO</a>
             <a href="#" class="dropdown-item">Rekap Bahan Ajar</a>
@@ -32,23 +34,21 @@
         </li>
 
         <li class="nav-item"><a href="#" class="nav-link">Histori Transaksi</a></li>
-        <li class="nav-item nav-right"><button id="logoutBtn" class="btn-logout">Logout</button></li>
+        <li class="nav-item nav-right"><button id="logoutBtn" class="btn-logout"><span>Logout</span></button></li>
       </ul>
     </div>
   </nav>
 
-  <!-- CONTENT -->
-  <div class="container">
-    <section class="content-header">
-      <h1 class="page-title">Dashboard Aplikasi <span class="title-accent">SITTA</span></h1>
-      <div class="greeting-container">
-        <span id="greetingText" class="greeting-text">Selamat Pagi</span>
-        <span id="timeBadge" class="time-badge"></span>
+  <main class="container">
+    <section class="section">
+      <div class="header">
+        <h1 class="page-title">Dashboard SITTA</h1>
+      </div>
+      <div class="greet">
+        <div id="greetingText"></div>
       </div>
     </section>
-  </div>
-
-  <div class="toast-container"></div>
+  </main>
 
   <script src="js/data.js"></script>
   <script src="js/script.js"></script>

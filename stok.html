@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Informasi Stok Bahan Ajar</title>
   <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="sitta" data-page="stok">
-
+<body data-page="stok">
   <!-- NAVBAR lengkap -->
   <nav class="navbar">
     <div class="navbar-container">
@@ -38,36 +37,27 @@
   </nav>
 
   <main class="container">
-    <section class="card">
-      <h2>Tambah Stok Bahan Ajar</h2>
-      <form id="stok-form" autocomplete="off" class="stok-form">
-        <div class="grid-3">
-          <label><span>Kode Lokasi</span><input id="stok-inLokasi" required placeholder=""></label>
-          <label><span>Kode Barang</span><input id="stok-inKode" required placeholder=""></label>
-          <label><span>Nama Barang</span><input id="stok-inNama" required placeholder=""></label>
-        </div>
-        <div class="grid-3">
-          <label><span>Jenis Barang</span><input id="stok-inJenis" required placeholder=""></label>
-          <label><span>Edisi</span><input type="number" id="stok-inEdisi" min="1" required placeholder=""></label>
-          <label><span>Stok</span><input type="number" id="stok-inStok" min="0" required placeholder=""></label>
-        </div>
-        <label><span>Cover (gambar dari device)</span><input type="file" id="stok-inCoverFile" accept="image/*"></label>
-        <div class="actions">
-          <button class="btn btn-primary" type="submit">Tambah</button>
-          <button class="btn" type="reset">Reset</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="card">
+    <!-- Tabel Daftar Stok Full Width -->
+    <section class="section">
       <div class="table-head">
         <h2>Daftar Stok Bahan Ajar</h2>
-        <input id="stok-q" class="filter" placeholder="Cari nama/kode..."/>
+        <div class="table-head-actions">
+          <input class="input input-search" id="stok-q" placeholder="Cari nama/kode/jenis/lokasi...">
+          <button class="btn btn-primary" id="btnTambahStok" type="button">+ Tambah Data Baru</button>
+        </div>
       </div>
       <div class="table-wrap">
         <table class="tbl">
           <thead>
-            <tr><th>Cover</th><th>Kode Lokasi</th><th>Kode Barang</th><th>Nama Barang</th><th>Jenis</th><th>Edisi</th><th>Stok</th></tr>
+            <tr>
+              <th>Cover</th>
+              <th>Kode Lokasi</th>
+              <th>Kode Barang</th>
+              <th>Nama Barang</th>
+              <th>Jenis</th>
+              <th>Edisi</th>
+              <th>Stok</th>
+            </tr>
           </thead>
           <tbody id="stok-body"></tbody>
         </table>
@@ -75,13 +65,56 @@
     </section>
   </main>
 
-  <!-- LIGHTBOX PREVIEW cepat -->
-  <div id="lb" class="lightbox">
-    <button class="close" id="lbClose" type="button">&times;</button>
-    <img id="lbImg" alt="Preview Cover"/>
-  </div>
+  <!-- Modal Form Tambah Stok -->
+  <dialog id="modalTambahStok">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Tambah Stok Bahan Ajar</h3>
+        <button class="modal-close" id="closeModalStok" type="button">×</button>
+      </div>
+      <form id="stok-form" autocomplete="off">
+        <label>
+          <span>Kode Lokasi</span>
+          <input class="input" id="stok-inLokasi" placeholder="Masukkan kode lokasi" required>
+        </label>
+        <label>
+          <span>Kode Barang</span>
+          <input class="input" id="stok-inKode" placeholder="Masukkan kode barang" required>
+        </label>
+        <label>
+          <span>Nama Barang</span>
+          <input class="input" id="stok-inNama" placeholder="Masukkan nama barang " required>
+        </label>
+        <label>
+          <span>Jenis Barang</span>
+          <input class="input" id="stok-inJenis" placeholder="Masukkan jenis barang" required>
+        </label>
+        <label>
+          <span>Edisi</span>
+          <input class="input" id="stok-inEdisi" type="number" placeholder="" min="1" required>
+        </label>
+        <label>
+          <span>Stok</span>
+          <input class="input" id="stok-inStok" type="number" placeholder="" min="0" required>
+        </label>
+        <label>
+          <span>Cover</span>
+          <input class="file" id="stok-inCoverFile" type="file" accept="image/*">
+        </label>
+        <div id="stokMsg" class="panel error hidden"></div>
+        <div class="btn-row" style="margin-top: 20px;">
+          <button class="btn btn-primary" type="submit">Simpan</button>
+          <button class="btn btn-muted" type="button" id="btnBatalStok">Batal</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
-  <div class="toast-container"></div>
+  <!-- Lightbox preview -->
+  <div id="lb" class="lightbox">
+    <img id="lbImg" alt="Preview">
+    <button id="lbClose" class="close" aria-label="Tutup">×</button>
+  </div>
 
   <script src="js/data.js"></script>
   <script src="js/script.js"></script>

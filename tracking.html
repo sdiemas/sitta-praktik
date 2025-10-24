@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tracking Pengiriman</title>
   <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="sitta" data-page="tracking">
-
-  <!-- NAVBAR lengkap -->
+<body data-page="tracking">
+  <!-- NAVBAR lengkap (tanpa teks brand) -->
   <nav class="navbar">
     <div class="navbar-container">
       <div class="navbar-brand"></div>
@@ -38,40 +37,21 @@
   </nav>
 
   <main class="container">
-    <section class="card">
+    <!-- Form pencarian ramping (tanpa card besar) -->
+    <section class="section tracking-box">
       <h2>Tracking Pengiriman – Delivery Order</h2>
       <div class="input-row">
-        <input type="text" id="doInput" placeholder="Masukkan Nomor DO " autocomplete="off" />
+        <input class="input" id="doInput" placeholder="Masukkan nomor DO" autocomplete="off">
         <button id="doSearch" class="btn btn-primary" type="button">Cari</button>
       </div>
+      <div id="doMsg" class="panel hidden sp-top"></div>
     </section>
 
-    <section id="doResult" class="card hidden">
-      <div class="result-head">
-        <div>
-          <h3 id="resNomor"></h3>
-          <div class="muted">Nama: <span id="resNama"></span></div>
-        </div>
-        <span id="resStatus" class="badge">Status</span>
-      </div>
-
-      <div class="progress"><div id="resBar" class="bar"></div></div>
-
-      <div class="detail-grid">
-        <div class="detail-item"><span class="label">Ekspedisi</span><span id="resEkspedisi" class="value"></span></div>
-        <div class="detail-item"><span class="label">Tanggal Kirim</span><span id="resTanggal" class="value"></span></div>
-        <div class="detail-item"><span class="label">Jenis Paket</span><span id="resPaket" class="value"></span></div>
-        <div class="detail-item"><span class="label">Total</span><span id="resTotal" class="value"></span></div>
-      </div>
-
-      <div class="timeline">
-        <h4>Perjalanan</h4>
-        <ul id="resTimeline"></ul>
-      </div>
+    <!-- Hasil tracking dengan card normal (awalnya hidden) -->
+    <section id="doResult" class="section" style="display: none;">
+      <!-- Content akan diisi oleh JavaScript -->
     </section>
   </main>
-
-  <div class="toast-container"></div>
 
   <script src="js/data.js"></script>
   <script src="js/script.js"></script>

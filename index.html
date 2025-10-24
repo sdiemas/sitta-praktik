@@ -1,75 +1,145 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login</title>
-  <link rel="stylesheet" href="css/style.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SITTA</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="sitta" data-page="login">
+<body data-page="login">
 
-  <!-- NAVBAR (brand kosong, tanpa teks) -->
-  <nav class="navbar">
-    <div class="navbar-container">
-      <div class="navbar-brand"></div>
-    </div>
-  </nav>
+  <!-- MAIN CONTENT - CENTERED -->
+  <main class="container-center">
+    <section class="section login-card">
+      
+      <!-- Panel Notifikasi -->
+      <div id="loginNotice" class="panel hidden"></div>
 
-  <main class="auth-wrap">
-    <section class="auth-card">
-      <h1 class="auth-title">Selamat Datang</h1>
+      <!-- Judul Halaman -->
+      <h1 class="page-title" style="text-align: center; margin-bottom: 24px;">Selamat Datang</h1>
+      
+      <!-- Form Login -->
       <form id="loginForm" autocomplete="off">
         <label>
           <span>Email</span>
-          <input type="email" id="email" placeholder="Masukkan Alamat Email" required/>
+          <input 
+            class="input" 
+            id="email" 
+            type="email" 
+            placeholder="Masukkan Email"
+            required>
         </label>
+        
         <label>
           <span>Password</span>
-          <input type="password" id="password" placeholder="Masukkan Password" required/>
+          <input 
+            class="input" 
+            id="password" 
+            type="password" 
+            placeholder="Masukkan Password"
+            required>
         </label>
-        <button type="submit" class="btn btn-primary">Masuk</button>
+        
+        <!-- Tombol Login -->
+        <button class="btn btn-primary btn-full" type="submit" style="margin-top: 20px;">
+          <span>Masuk</span>
+        </button>
+        
+        <!-- Panel Error -->
+        <div id="loginMsg" class="panel error hidden" style="margin-top: 16px;"></div>
+        
+        <!-- Link Tambahan -->
+        <div class="login-links">
+          <button class="link-btn" data-open="forgotModal" type="button">
+            Lupa Password?
+          </button>
+          <span>•</span>
+          <button class="link-btn" data-open="registerModal" type="button">
+            Daftar Akun
+          </button>
+        </div>
       </form>
-
-      <div class="auth-links">
-        <button class="link" data-open="forgotModal">Lupa Password?</button>
-        <button class="link" data-open="registerModal">Daftar</button>
-      </div>
+      
     </section>
   </main>
 
-  <!-- Modal: Lupa Password -->
-  <dialog id="forgotModal" class="modal">
-    <form method="dialog" class="modal-card">
-      <h3>Lupa Password</h3>
-      <p>Masukkan email UT Anda untuk menerima tautan reset.</p>
-      <input type="email" id="resetEmail" placeholder="nama@ut.ac.id"/>
-      <div class="modal-actions">
-        <button class="btn" data-close="forgotModal" type="button">Batal</button>
-        <button class="btn btn-primary" id="sendReset" type="button">Kirim</button>
+  <!-- MODAL: Lupa Password -->
+  <dialog id="forgotModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Lupa Password</h3>
+        <button class="modal-close" data-close="forgotModal" type="button">×</button>
       </div>
-    </form>
+      
+      <form method="dialog">
+        <label>
+          <span>Email</span>
+          <input 
+            class="input" 
+            id="resetEmail" 
+            type="email"
+            placeholder="Masukkan email Anda">
+        </label>
+        
+        <div class="btn-row" style="margin-top: 20px;">
+          <button class="btn btn-muted" data-close="forgotModal" type="button">
+            <span>Batal</span>
+          </button>
+          <button class="btn btn-primary" data-close="forgotModal" type="button">
+            <span>Kirim Link Reset</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </dialog>
 
-  <!-- Modal: Daftar -->
-  <dialog id="registerModal" class="modal">
-    <form method="dialog" class="modal-card" id="registerForm" autocomplete="off">
-      <h3>Pendaftaran Akun</h3>
-      <div class="grid-3">
-        <label><span>Nama Lengkap</span><input id="regName" placeholder="Rina Wulandari" required></label>
-        <label><span>Email</span><input type="email" id="regEmail" placeholder="nama@ut.ac.id" required></label>
-        <label><span>Password</span><input type="password" id="regPass" placeholder="Minimal 6 karakter" required></label>
+  <!-- MODAL: Daftar Akun -->
+  <dialog id="registerModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Daftar Akun Baru</h3>
+        <button class="modal-close" data-close="registerModal" type="button">×</button>
       </div>
-      <label><span>Ulangi Password</span><input type="password" id="regPass2" placeholder="Ulangi password" required></label>
-      <div class="modal-actions">
-        <button class="btn" data-close="registerModal" type="button">Batal</button>
-        <button class="btn btn-primary" id="submitRegister" type="button">Buat Akun</button>
-      </div>
-    </form>
+      
+      <form 
+        method="dialog" 
+        id="registerForm" 
+        autocomplete="off">
+        
+        <label>
+          <span>Nama Lengkap</span>
+          <input class="input" id="regName" placeholder="Masukkan nama lengkap">
+        </label>
+        
+        <label>
+          <span>Email</span>
+          <input class="input" id="regEmail" type="email" placeholder="Masukkan email">
+        </label>
+        
+        <label>
+          <span>Password</span>
+          <input class="input" id="regPass" type="password" placeholder="Masukkan password">
+        </label>
+        
+        <label>
+          <span>Ulangi Password</span>
+          <input class="input" id="regPass2" type="password" placeholder="Ulangi password">
+        </label>
+        
+        <div class="btn-row" style="margin-top: 20px;">
+          <button class="btn btn-muted" data-close="registerModal" type="button">
+            <span>Batal</span>
+          </button>
+          <button class="btn btn-primary" data-close="registerModal" type="button">
+            <span>Daftar</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </dialog>
 
-  <div class="toast-container"></div>
-
+  <!-- SCRIPTS -->
   <script src="js/data.js"></script>
   <script src="js/script.js"></script>
 </body>
