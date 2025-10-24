@@ -1,332 +1,670 @@
-// ============ Utilities ============
-const $ = (s, c=document) => c.querySelector(s);
-const on = (el, ev, fn) => el && el.addEventListener(ev, fn);
-
-// Toast only (tanpa alert OK)
-function notify(msg, type = "info"){
-  let box = document.querySelector(".toast-container");
-  if(!box){
-    box = document.createElement("div");
-    box.className = "toast-container";
-    document.body.appendChild(box);
+/* ========== HELPER FUNCTIONS ========== */
+const $ = (selector, context = document) => context.querySelector(selector);
+const $$ = (selector, context = document) => context.querySelectorAll(selector);
+const on = (element, event, handler) => {
+  if (element) {
+    element.addEventListener(event, handler);
   }
-  const t = document.createElement("div");
-  t.className = `toast ${type}`;
-  t.textContent = msg;
-  box.appendChild(t);
-  setTimeout(()=> t.remove(), 3800);
-}
+};
 
-// ============ User store (merge default + local) ============
-const DEFAULT_USERS = Array.isArray(window.dataPengguna) ? window.dataPengguna : [];
-const LS_KEY_USERS = "users";
-
-function getLocalUsers(){
-  try { return JSON.parse(localStorage.getItem(LS_KEY_USERS) || "[]"); }
-  catch { return []; }
-}
-function saveLocalUsers(arr){
-  localStorage.setItem(LS_KEY_USERS, JSON.stringify(arr || []));
-}
-function getAllUsers(){
-  // gabung default + lokal (tanpa duplikat email)
-  const map = new Map();
-  DEFAULT_USERS.forEach(u => map.set(u.email.toLowerCase(), u));
-  getLocalUsers().forEach(u => map.set(u.email.toLowerCase(), u));
-  return Array.from(map.values());
-}
-
-// ============ Proteksi Login (redirect halus) ============
+/* ========== PROTEKSI LOGIN ========== */
 (() => {
-  const page = document.body.dataset.page;
-  const userData = localStorage.getItem("currentUser");
-  const protectedPages = ["dashboard","tracking","stok"];
-
-  if (protectedPages.includes(page) && !userData) {
+  const currentPage = document.body.dataset.page;
+  const protectedPages = ["dashboard", "tracking", "stok"];
+  
+  if (protectedPages.includes(currentPage) && !localStorage.getItem("currentUser")) {
     sessionStorage.setItem("needLogin", "true");
     window.location.replace("index.html");
   }
-
-  if (page === "login" && sessionStorage.getItem("needLogin") === "true") {
-    notify("Silakan login terlebih dahulu!", "error");
-    sessionStorage.removeItem("needLogin");
-  }
 })();
 
-// ============ LOGIN & REGISTER ============
-if (document.body.dataset.page === "login") {
-  // ---- LOGIN ----
-  const form = $("#loginForm");
-  on(form, "submit", (e)=>{
-    e.preventDefault();
-    const email = $("#email").value.trim().toLowerCase();
-    const pass  = $("#password").value.trim();
-    const user = getAllUsers().find(u => u.email.toLowerCase() === email && u.password === pass);
-    if (!user) return notify("Email/password yang anda masukkan salah", "error");
-    localStorage.setItem("currentUser", JSON.stringify(user));
-    notify(`Selamat datang, ${user.nama}!`, "success");
-    setTimeout(()=> window.location.href = "dashboard.html", 500);
-  });
-
-  // ---- MODAL open/close ----
-  document.querySelectorAll("[data-open]").forEach(b=> on(b,"click",()=> $("#"+b.dataset.open).showModal()));
-  document.querySelectorAll("[data-close]").forEach(b=> on(b,"click",()=> $("#"+b.dataset.close).close()));
-
-  on($("#sendReset"),"click",()=>{ 
-    const e = $("#resetEmail").value.trim(); 
-    if(!e) return notify("Masukkan email Anda.", "error");
-    notify("Tautan reset dikirim (simulasi).", "info"); 
-    $("#forgotModal").close();
-  });
-
-  // ---- REGISTER (nyata, simpan ke localStorage) ----
-  const regBtn = $("#submitRegister");
-  on(regBtn,"click",()=>{
-    const name = $("#regName").value.trim();
-    const email = $("#regEmail").value.trim().toLowerCase();
-    const pass1 = $("#regPass").value;
-    const pass2 = $("#regPass2").value;
-
-    // validasi sederhana
-    if(!name || !email || !pass1 || !pass2) return notify("Lengkapi semua field pendaftaran.", "error");
-    if(!/^\S+@\S+\.\S+$/.test(email)) return notify("Format email tidak valid.", "error");
-    if(pass1.length < 6) return notify("Password minimal 6 karakter.", "error");
-    if(pass1 !== pass2) return notify("Konfirmasi password tidak sama.", "error");
-
-    const exists = getAllUsers().some(u => u.email.toLowerCase() === email);
-    if(exists) return notify("Email sudah terdaftar.", "error");
-
-    const local = getLocalUsers();
-    const newUser = {
-      id: Date.now(),
-      nama: name,
-      email,
-      password: pass1,
-      role: "UPBJJ-UT",
-      lokasi: "Pusat"
-    };
-    local.push(newUser);
-    saveLocalUsers(local);
-
-    // opsional: auto-login setelah daftar
-    localStorage.setItem("currentUser", JSON.stringify(newUser));
-
-    $("#registerModal").close();
-    notify("Pendaftaran berhasil. Anda sudah login.", "success");
-    setTimeout(()=> window.location.href="dashboard.html", 600);
-  });
-}
-
-// ============ NAVBAR (semua halaman) ============
+/* ========== NAVBAR FUNCTIONALITY ========== */
 (() => {
-  const navToggle = $("#navToggle");
-  const primaryMenu = $("#primaryMenu");
+  const toggleBtn = $("#navToggle");
+  const menu = $("#primaryMenu");
   const laporanItem = $("#laporanItem");
   const laporanToggle = $("#laporanToggle");
-
-  if (navToggle && primaryMenu) {
-    navToggle.addEventListener("click", () => {
-      const opened = primaryMenu.classList.toggle("open");
-      navToggle.classList.toggle("open");
-      navToggle.setAttribute("aria-expanded", opened ? "true" : "false");
-    });
-  }
-
-  if (laporanToggle && laporanItem) {
-    laporanToggle.addEventListener("click", (e) => {
-      e.preventDefault();
-      const show = laporanItem.classList.toggle("show");
-      laporanToggle.setAttribute("aria-expanded", show ? "true" : "false");
-    });
-  }
-
+  
+  on(toggleBtn, "click", () => {
+    const isOpen = menu.classList.toggle("open");
+    toggleBtn.classList.toggle("open");
+    toggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  });
+  
+  on(laporanToggle, "click", (e) => {
+    e.preventDefault();
+    laporanItem.classList.toggle("show");
+  });
+  
   document.addEventListener("click", (e) => {
-    if (!primaryMenu || !navToggle) return;
-    if (!primaryMenu.contains(e.target) && !navToggle.contains(e.target)) {
-      primaryMenu.classList.remove("open");
-      navToggle.classList.remove("open");
-      navToggle.setAttribute("aria-expanded","false");
-      if (laporanItem) laporanItem.classList.remove("show");
+    if (menu && toggleBtn && !menu.contains(e.target) && !toggleBtn.contains(e.target)) {
+      menu.classList.remove("open");
+      toggleBtn.classList.remove("open");
+      toggleBtn.setAttribute("aria-expanded", "false");
+    }
+    
+    if (laporanItem && !laporanItem.contains(e.target)) {
+      laporanItem.classList.remove("show");
     }
   });
-
+  
   const logoutBtn = $("#logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      localStorage.removeItem("currentUser");
-      notify("Anda telah logout.", "info");
-      setTimeout(()=> window.location.href="index.html", 500);
-    });
-  }
-
-  // Tandai menu aktif otomatis berdasarkan path
-  const path = location.pathname.split("/").pop() || "index.html";
-  const links = document.querySelectorAll(".nav-link[href]");
-  links.forEach(a => {
-    const href = a.getAttribute("href");
-    if (href && path === href) a.classList.add("active");
+  on(logoutBtn, "click", () => {
+    localStorage.removeItem("currentUser");
+    window.location.href = "index.html";
+  });
+  
+  const currentPath = location.pathname.split("/").pop() || "index.html";
+  $$(".nav-link[href]").forEach(link => {
+    if (link.getAttribute("href") === currentPath) {
+      link.classList.add("active");
+    }
   });
 })();
 
-// ============ DASHBOARD ============
-if (document.body.dataset.page === "dashboard") {
-  const user = JSON.parse(localStorage.getItem("currentUser") || "null");
-  const greetingText = $("#greetingText");
-  const timeBadge = $("#timeBadge");
-
-  const setGreeting = () => {
-    const now = new Date(); const h = now.getHours();
-    let greet = "Selamat Malam";
-    if (h >= 5 && h < 11) greet = "Selamat Pagi";
-    else if (h >= 11 && h < 15) greet = "Selamat Siang";
-    else if (h >= 15 && h < 18) greet = "Selamat Sore";
-    greetingText.textContent = user ? `${greet}, ${user.nama}` : greet; // tanpa emoji
-    timeBadge.textContent = now.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
-  };
-  setGreeting();
+/* ========== LOGIN PAGE ========== */
+if (document.body.dataset.page === "login") {
+  const noticePanel = $("#loginNotice");
+  
+  if (sessionStorage.getItem("needLogin") === "true") {
+    if (noticePanel) {
+      noticePanel.textContent = "Anda harus login terlebih dahulu.";
+      noticePanel.classList.remove("hidden");
+    }
+    sessionStorage.removeItem("needLogin");
+  }
+  
+  $$("[data-open]").forEach(btn => {
+    on(btn, "click", () => {
+      const modalId = btn.dataset.open;
+      const modal = $("#" + modalId);
+      if (modal) modal.showModal();
+    });
+  });
+  
+  $$("[data-close]").forEach(btn => {
+    on(btn, "click", () => {
+      const modalId = btn.dataset.close;
+      const modal = $("#" + modalId);
+      if (modal) modal.close();
+    });
+  });
+  
+  const loginForm = $("#loginForm");
+  const loginMsg = $("#loginMsg");
+  
+  on(loginForm, "submit", (e) => {
+    e.preventDefault();
+    if (loginMsg) loginMsg.classList.add("hidden");
+    
+    const emailEl = $("#email");
+    const passwordEl = $("#password");
+    
+    if (!emailEl || !passwordEl) return;
+    
+    const email = emailEl.value.trim().toLowerCase();
+    const password = passwordEl.value.trim();
+    
+    const users = (Array.isArray(window.dataPengguna) ? window.dataPengguna : [])
+      .concat(JSON.parse(localStorage.getItem("users") || "[]"));
+    
+    const user = users.find(u => 
+      u.email.toLowerCase() === email && u.password === password
+    );
+    
+    if (!user) {
+      if (loginMsg) {
+        loginMsg.textContent = "Email atau password salah.";
+        loginMsg.classList.remove("hidden");
+      }
+      return;
+    }
+    
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    window.location.href = "dashboard.html";
+  });
 }
 
-// ============ TRACKING ============
+/* ========== DASHBOARD PAGE ========== */
+if (document.body.dataset.page === "dashboard") {
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+  const greetingText = $("#greetingText");
+  
+  const updateGreeting = () => {
+    const hour = new Date().getHours();
+    let greeting = "Selamat Malam";
+    
+    if (hour >= 5 && hour < 11) {
+      greeting = "Selamat Pagi";
+    } else if (hour >= 11 && hour < 15) {
+      greeting = "Selamat Siang";
+    } else if (hour >= 15 && hour < 18) {
+      greeting = "Selamat Sore";
+    }
+    
+    if (greetingText) {
+      greetingText.textContent = currentUser 
+        ? `${greeting}, ${currentUser.nama}` 
+        : greeting;
+    }
+  };
+  
+  updateGreeting();
+}
+
+/* ========== TRACKING PAGE ========== */
 if (document.body.dataset.page === "tracking") {
   const input = $("#doInput");
-  const btn   = $("#doSearch");
-  const card  = $("#doResult");
-  card.style.display = "none"; // sembunyikan dari awal
-
-  const el = {
-    nomor: $("#resNomor"), nama: $("#resNama"), status: $("#resStatus"), bar: $("#resBar"),
-    ekspedisi: $("#resEkspedisi"), tanggal: $("#resTanggal"), paket: $("#resPaket"),
-    total: $("#resTotal"), timeline: $("#resTimeline")
+  const searchBtn = $("#doSearch");
+  const resultCard = $("#doResult");
+  const messagePanel = $("#doMsg");
+  
+  const getStatusMeta = (status) => {
+    const statusLower = (status || "").toLowerCase();
+    
+    if (statusLower.includes("selesai")) {
+      return { percent: 100, label: "Selesai" };
+    }
+    if (statusLower.includes("dalam")) {
+      return { percent: 70, label: "Dalam Perjalanan" };
+    }
+    if (statusLower.includes("dikirim")) {
+      return { percent: 40, label: "Dikirim" };
+    }
+    if (statusLower.includes("proses")) {
+      return { percent: 25, label: "Proses" };
+    }
+    if (statusLower.includes("gagal")) {
+      return { percent: 100, label: "Gagal" };
+    }
+    
+    return { percent: 10, label: status || "Tidak diketahui" };
   };
-
-  const statusToMeta = (status)=>{
-    const s=(status||"").toLowerCase();
-    if (s.includes("selesai")) return {cls:"done",pct:100,label:"Selesai"};
-    if (s.includes("dalam"))   return {cls:"inroute",pct:60,label:"Dalam Perjalanan"};
-    if (s.includes("dikirim")) return {cls:"shipped",pct:40,label:"Dikirim"};
-    if (s.includes("proses"))  return {cls:"pending",pct:25,label:"Proses"};
-    if (s.includes("gagal"))   return {cls:"failed",pct:100,label:"Gagal"};
-    return {cls:"pending",pct:10,label:status||"Tidak diketahui"};
-  };
-  const fmt = (iso)=>!iso?"-":new Date(iso).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
-
-  function render(item){
-    card.style.display = "block";
-    el.nomor.textContent = `Nomor DO: ${item.nomorDO}`;
-    el.nama.textContent  = item.nama;
-    const m = statusToMeta(item.status);
-    el.status.className = "badge " + m.cls; el.status.textContent = m.label;
-    el.bar.style.width = m.pct + "%";
-    el.ekspedisi.textContent = item.ekspedisi || "-";
-    el.tanggal.textContent   = fmt(item.tanggalKirim);
-    el.paket.textContent     = item.paket || "-";
-    el.total.textContent     = item.total || "-";
-
-    el.timeline.innerHTML = "";
-    (item.perjalanan||[]).forEach(p=>{
-      const li=document.createElement("li");
-      li.innerHTML=`<span class="time">${p.waktu}</span><span class="ket">${p.keterangan}</span>`;
-      el.timeline.appendChild(li);
+  
+  const formatDate = (isoDate) => {
+    if (!isoDate) return "-";
+    return new Date(isoDate).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
     });
-  }
+  };
+  
+  const showNotFound = () => {
+    if (!resultCard) return;
+    
+    // Tampilkan card hasil dengan konten "tidak ditemukan"
+    resultCard.innerHTML = `
+      <div style="text-align: center; padding: 80px 20px;">
+        <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">📦</div>
+        <div style="font-size: 22px; font-weight: 600; color: #374151; margin-bottom: 12px;">
+          Data Tidak Ditemukan
+        </div>
+        <div style="font-size: 15px; color: #6b7280; line-height: 1.6;">
+          Nomor DO yang Anda cari tidak ditemukan dalam sistem.<br>
+          Pastikan Anda memasukkan nomor yang benar.
+        </div>
+      </div>
+    `;
+    resultCard.style.display = "block";
+  };
+  
+  const renderResult = (data) => {
+    if (!resultCard) return;
+    
+    if (messagePanel) messagePanel.classList.add("hidden");
+    
+    // Render struktur lengkap hasil tracking
+    resultCard.innerHTML = `
+      <div class="result-head">
+        <div>
+          <h3 id="resNomor"></h3>
+          <div class="muted">Nama: <span id="resNama"></span></div>
+        </div>
+        <span id="resStatus" class="badge">Status</span>
+      </div>
 
-  function lookup(){
-    const key = (input.value||"").trim();
-    if(!key){
-      notify("Masukkan nomor DO terlebih dahulu.", "error");
-      card.style.display = "none";
+      <div class="progress"><div id="resBar" class="bar"></div></div>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">Ekspedisi</span>
+          <span id="resEkspedisi" class="value"></span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Tanggal Kirim</span>
+          <span id="resTanggal" class="value"></span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Jenis Paket</span>
+          <span id="resPaket" class="value"></span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Total</span>
+          <span id="resTotal" class="value"></span>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <h4>Perjalanan</h4>
+        <ul id="resTimeline"></ul>
+      </div>
+    `;
+    
+    resultCard.style.display = "block";
+    
+    // Isi data ke element yang baru dibuat
+    const resNomor = $("#resNomor");
+    const resNama = $("#resNama");
+    const resStatus = $("#resStatus");
+    const resBar = $("#resBar");
+    const resEkspedisi = $("#resEkspedisi");
+    const resTanggal = $("#resTanggal");
+    const resPaket = $("#resPaket");
+    const resTotal = $("#resTotal");
+    const resTimeline = $("#resTimeline");
+    
+    if (resNomor) resNomor.textContent = `Nomor DO: ${data.nomorDO}`;
+    if (resNama) resNama.textContent = data.nama;
+    
+    const statusMeta = getStatusMeta(data.status);
+    if (resStatus) resStatus.textContent = statusMeta.label;
+    if (resBar) {
+      setTimeout(() => {
+        resBar.style.width = statusMeta.percent + "%";
+      }, 100);
+    }
+    
+    if (resEkspedisi) resEkspedisi.textContent = data.ekspedisi || "-";
+    if (resTanggal) resTanggal.textContent = formatDate(data.tanggalKirim);
+    if (resPaket) resPaket.textContent = data.paket || "-";
+    if (resTotal) resTotal.textContent = data.total || "-";
+    
+    if (resTimeline) {
+      resTimeline.innerHTML = "";
+      (data.perjalanan || []).forEach(item => {
+        const li = document.createElement("li");
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "time";
+        timeSpan.textContent = item.waktu;
+        
+        const ketSpan = document.createElement("span");
+        ketSpan.className = "ket";
+        ketSpan.textContent = item.keterangan;
+        
+        li.appendChild(timeSpan);
+        li.appendChild(ketSpan);
+        resTimeline.appendChild(li);
+      });
+    }
+  };
+  
+  const searchTracking = () => {
+    if (!input) return;
+    
+    const searchKey = input.value.trim();
+    
+    if (!searchKey) {
+      if (messagePanel) {
+        messagePanel.textContent = "Masukkan nomor DO terlebih dahulu.";
+        messagePanel.className = "panel error";
+        messagePanel.classList.remove("hidden");
+      }
+      if (resultCard) resultCard.style.display = "none";
       return;
     }
-    const item = (window.dataTracking||{})[key];
-    if(!item){
-      notify("Nomor DO tidak ditemukan.", "error");
-      card.style.display = "none";
+    
+    // Hide message panel saat search
+    if (messagePanel) messagePanel.classList.add("hidden");
+    
+    const trackingData = (window.dataTracking || {})[searchKey];
+    
+    if (!trackingData) {
+      showNotFound();
       return;
     }
-    render(item);
-    notify("Data DO ditemukan.", "success");
+    
+    renderResult(trackingData);
+  };
+  
+  on(searchBtn, "click", searchTracking);
+  
+  on(input, "keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      searchTracking();
+    }
+  });
+  
+  // Hide result card pada load awal
+  if (resultCard) {
+    resultCard.style.display = "none";
   }
-
-  on(btn,"click",lookup);
-  on(input,"keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); lookup(); }});
-  if (input) input.value="";
 }
 
-// ============ STOK ============
+/* ========== STOK PAGE ========== */
 if (document.body.dataset.page === "stok") {
   const tbody = $("#stok-body");
-  const form  = $("#stok-form");
-  const q     = $("#stok-q");
-  const fileInput = $("#stok-inCoverFile");
-
-  let stokData = Array.isArray(window.dataBahanAjar) ? [...window.dataBahanAjar] : [];
-
-  function rowHTML(row){
-    const img = row.cover ? `<img class="stok-thumb" src="${row.cover}" alt="${row.namaBarang||''}">` : "";
-    return `<td>${img}</td><td>${row.kodeLokasi}</td><td>${row.kodeBarang}</td><td>${row.namaBarang}</td><td>${row.jenisBarang}</td><td>${row.edisi}</td><td>${row.stok}</td>`;
+  const form = $("#stok-form");
+  const searchInput = $("#stok-q");
+  const messagePanel = $("#stokMsg");
+  const coverFileInput = $("#stok-inCoverFile");
+  const modal = $("#modalTambahStok");
+  const btnTambah = $("#btnTambahStok");
+  const btnClose = $("#closeModalStok");
+  const btnBatal = $("#btnBatalStok");
+  
+  let stokData = Array.isArray(window.dataBahanAjar) 
+    ? [...window.dataBahanAjar] 
+    : [];
+  
+  // Open Modal
+  if (btnTambah) {
+    btnTambah.addEventListener("click", () => {
+      if (modal) {
+        modal.showModal();
+        if (form) form.reset();
+        if (messagePanel) messagePanel.classList.add("hidden");
+      }
+    });
   }
-  function render(list = stokData){
-    tbody.innerHTML=""; list.forEach(r=>{ const tr=document.createElement("tr"); tr.innerHTML=rowHTML(r); tbody.appendChild(tr); });
-  }
-  render();
-
-  on(q,"input",()=>{
-    const t=q.value.trim().toLowerCase();
-    const f=stokData.filter(x =>
-      x.namaBarang.toLowerCase().includes(t) ||
-      x.kodeBarang.toLowerCase().includes(t) ||
-      x.kodeLokasi.toLowerCase().includes(t) ||
-      x.jenisBarang.toLowerCase().includes(t)
-    );
-    render(f);
-  });
-
-  on(form,"submit",(e)=>{
-    e.preventDefault();
-    const kodeLokasi=$("#stok-inLokasi").value.trim();
-    const kodeBarang=$("#stok-inKode").value.trim();
-    const namaBarang=$("#stok-inNama").value.trim();
-    const jenisBarang=$("#stok-inJenis").value.trim();
-    const edisiStr=$("#stok-inEdisi").value.trim();
-    const stokStr=$("#stok-inStok").value.trim();
-    const file=fileInput.files[0]||null;
-
-    const edisi=Number(edisiStr), stok=Number(stokStr);
-    if(!kodeLokasi||!kodeBarang||!namaBarang||!jenisBarang||!edisiStr||!stokStr) return notify("Lengkapi semua field wajib.", "error");
-    if(!Number.isFinite(edisi)||edisi<1) return notify("Edisi harus angka valid ≥ 1.", "error");
-    if(!Number.isFinite(stok)||stok<0)   return notify("Stok harus angka valid ≥ 0.", "error");
-    if(stokData.some(x=>x.kodeBarang.toLowerCase()===kodeBarang.toLowerCase())) return notify("Kode barang sudah ada.", "error");
-
-    let cover=""; 
-    if(file){ cover=URL.createObjectURL(file); }
-    const baru={kodeLokasi,kodeBarang,namaBarang,jenisBarang,edisi:String(edisi),stok,cover};
-    stokData.push(baru); 
-    if(Array.isArray(window.dataBahanAjar)) window.dataBahanAjar.push(baru);
-
-    if(q.value.trim()) q.dispatchEvent(new Event("input")); else render();
-    form.reset(); 
-    notify("Baris stok berhasil ditambahkan.", "success");
-  });
-
-  // LIGHTBOX PREVIEW cepat (no delay)
-  const lb=$("#lb"), lbImg=$("#lbImg"), lbClose=$("#lbClose");
-
-  on(tbody,"click",(e)=>{
-    const t=e.target.closest("img.stok-thumb");
-    if(!t) return;
-    lbImg.src = t.src;
-    lb.classList.add("open"); // tampil instan
-  });
-
-  on(lbClose,"click",()=>{
-    lb.classList.remove("open");
-    if (lbImg.src.startsWith("blob:")) {
-      try { URL.revokeObjectURL(lbImg.src); } catch(_) {}
+  
+  // Close Modal Function
+  const closeModal = () => {
+    if (modal) {
+      modal.close();
+      if (form) form.reset();
+      if (messagePanel) messagePanel.classList.add("hidden");
     }
-    lbImg.src = "";
-  });
-
-  on(lb,"click",(e)=>{
-    if (e.target === lb) lbClose.click(); // klik backdrop → tutup
+  };
+  
+  // Event listeners untuk close
+  if (btnClose) {
+    btnClose.addEventListener("click", closeModal);
+  }
+  
+  if (btnBatal) {
+    btnBatal.addEventListener("click", closeModal);
+  }
+  
+  // Close modal saat click backdrop
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      const rect = modal.getBoundingClientRect();
+      if (
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom
+      ) {
+        closeModal();
+      }
+    });
+  }
+  
+  // Fungsi create row dengan DOM
+  const createTableRow = (item) => {
+    const tr = document.createElement("tr");
+    
+    // Cell Cover
+    const tdCover = document.createElement("td");
+    if (item.cover) {
+      const img = document.createElement("img");
+      img.className = "stok-thumb";
+      img.src = item.cover;
+      img.alt = item.namaBarang || "";
+      img.onclick = () => {
+        if (window.openLightbox) {
+          window.openLightbox(item.cover);
+        }
+      };
+      tdCover.appendChild(img);
+    }
+    tr.appendChild(tdCover);
+    
+    // Cell Kode Lokasi
+    const tdLokasi = document.createElement("td");
+    tdLokasi.textContent = item.kodeLokasi;
+    tr.appendChild(tdLokasi);
+    
+    // Cell Kode Barang
+    const tdKode = document.createElement("td");
+    tdKode.textContent = item.kodeBarang;
+    tr.appendChild(tdKode);
+    
+    // Cell Nama Barang
+    const tdNama = document.createElement("td");
+    tdNama.textContent = item.namaBarang;
+    tr.appendChild(tdNama);
+    
+    // Cell Jenis
+    const tdJenis = document.createElement("td");
+    tdJenis.textContent = item.jenisBarang;
+    tr.appendChild(tdJenis);
+    
+    // Cell Edisi
+    const tdEdisi = document.createElement("td");
+    tdEdisi.textContent = item.edisi;
+    tr.appendChild(tdEdisi);
+    
+    // Cell Stok
+    const tdStok = document.createElement("td");
+    const strongStok = document.createElement("strong");
+    strongStok.textContent = item.stok;
+    tdStok.appendChild(strongStok);
+    tr.appendChild(tdStok);
+    
+    return tr;
+  };
+  
+  const renderTable = (dataList) => {
+    if (!tbody) return;
+    
+    tbody.innerHTML = "";
+    
+    // JIKA DATA KOSONG - TAMPILKAN NOTIFIKASI
+    if (!dataList || dataList.length === 0) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 7;
+      td.style.textAlign = "center";
+      td.style.padding = "60px 20px";
+      td.style.background = "linear-gradient(135deg, #f9fafb 0%, #eff6ff 100%)";
+      
+      const icon = document.createElement("div");
+      icon.style.fontSize = "48px";
+      icon.style.marginBottom = "16px";
+      icon.textContent = "📦";
+      
+      const title = document.createElement("div");
+      title.style.fontSize = "18px";
+      title.style.fontWeight = "600";
+      title.style.color = "#374151";
+      title.style.marginBottom = "8px";
+      title.textContent = "Stok Tidak Ditemukan";
+      
+      const subtitle = document.createElement("div");
+      subtitle.style.fontSize = "14px";
+      subtitle.style.color = "#6b7280";
+      subtitle.textContent = "Tidak ada data yang sesuai dengan pencarian Anda";
+      
+      td.appendChild(icon);
+      td.appendChild(title);
+      td.appendChild(subtitle);
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+      return;
+    }
+    
+    // RENDER DATA NORMAL dengan DOM
+    dataList.forEach(item => {
+      const row = createTableRow(item);
+      tbody.appendChild(row);
+    });
+  };
+  
+  renderTable(stokData);
+  
+  // Search functionality
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      
+      if (searchTerm === "") {
+        renderTable(stokData);
+        return;
+      }
+      
+      const filteredData = stokData.filter(item => {
+        return item.namaBarang.toLowerCase().includes(searchTerm) ||
+               item.kodeBarang.toLowerCase().includes(searchTerm) ||
+               item.kodeLokasi.toLowerCase().includes(searchTerm) ||
+               item.jenisBarang.toLowerCase().includes(searchTerm);
+      });
+      
+      renderTable(filteredData);
+    });
+  }
+  
+  // Form Submit dengan validasi
+  if (form) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (messagePanel) messagePanel.classList.add("hidden");
+      
+      const getValue = (id) => {
+        const el = document.querySelector(id);
+        return el ? el.value.trim() : "";
+      };
+      
+      const kodeLokasi = getValue("#stok-inLokasi");
+      const kodeBarang = getValue("#stok-inKode");
+      const namaBarang = getValue("#stok-inNama");
+      const jenisBarang = getValue("#stok-inJenis");
+      const edisiStr = getValue("#stok-inEdisi");
+      const stokStr = getValue("#stok-inStok");
+      
+      const edisi = Number(edisiStr);
+      const stok = Number(stokStr);
+      
+      if (!kodeLokasi || !kodeBarang || !namaBarang || !jenisBarang || !edisiStr || !stokStr) {
+        if (messagePanel) {
+          messagePanel.textContent = "Lengkapi semua field.";
+          messagePanel.className = "panel error";
+          messagePanel.classList.remove("hidden");
+        }
+        return;
+      }
+      
+      if (!Number.isFinite(edisi) || edisi < 1) {
+        if (messagePanel) {
+          messagePanel.textContent = "Edisi harus angka valid ≥ 1.";
+          messagePanel.className = "panel error";
+          messagePanel.classList.remove("hidden");
+        }
+        return;
+      }
+      
+      if (!Number.isFinite(stok) || stok < 0) {
+        if (messagePanel) {
+          messagePanel.textContent = "Stok harus angka valid ≥ 0.";
+          messagePanel.className = "panel error";
+          messagePanel.classList.remove("hidden");
+        }
+        return;
+      }
+      
+      if (stokData.some(item => item.kodeBarang.toLowerCase() === kodeBarang.toLowerCase())) {
+        if (messagePanel) {
+          messagePanel.textContent = "Kode barang sudah ada.";
+          messagePanel.className = "panel error";
+          messagePanel.classList.remove("hidden");
+        }
+        return;
+      }
+      
+      let coverUrl = "";
+      if (coverFileInput && coverFileInput.files[0]) {
+        coverUrl = URL.createObjectURL(coverFileInput.files[0]);
+      }
+      
+      const newItem = {
+        kodeLokasi: kodeLokasi,
+        kodeBarang: kodeBarang,
+        namaBarang: namaBarang,
+        jenisBarang: jenisBarang,
+        edisi: String(edisi),
+        stok: stok,
+        cover: coverUrl
+      };
+      
+      stokData.unshift(newItem);
+      if (window.dataBahanAjar) {
+        window.dataBahanAjar.unshift(newItem);
+      }
+      
+      renderTable(stokData);
+      
+      if (form) form.reset();
+      if (searchInput) searchInput.value = "";
+      
+      closeModal();
+      
+      alert("✅ Stok berhasil ditambahkan!");
+    });
+  }
+  
+  // LIGHTBOX FUNCTIONALITY
+  const lightbox = $("#lb");
+  const lightboxImg = $("#lbImg");
+  const lightboxClose = $("#lbClose");
+  
+  window.openLightbox = (src) => {
+    if (lightbox && lightboxImg) {
+      lightboxImg.src = src;
+      lightbox.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+  };
+  
+  if (lightboxClose) {
+    lightboxClose.addEventListener("click", () => {
+      if (lightbox) {
+        lightbox.classList.remove("open");
+        document.body.style.overflow = "";
+        
+        if (lightboxImg && lightboxImg.src.startsWith("blob:")) {
+          try {
+            URL.revokeObjectURL(lightboxImg.src);
+          } catch (error) {
+            // Ignore
+          }
+        }
+        
+        if (lightboxImg) lightboxImg.src = "";
+      }
+    });
+  }
+  
+  if (lightbox) {
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox && lightboxClose) {
+        lightboxClose.click();
+      }
+    });
+  }
+  
+  // Close dengan ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (lightbox && lightbox.classList.contains("open") && lightboxClose) {
+        lightboxClose.click();
+      }
+      if (modal && modal.open) {
+        closeModal();
+      }
+    }
   });
 }
+
+console.log('✅ SITTA App initialized successfully');
